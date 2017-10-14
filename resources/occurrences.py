@@ -34,43 +34,49 @@ class OccurrenceList(Resource):
         occurrence_object_list = []
 
         for line in lines:
-            for m in re.finditer(re.escape(query_text), line, re.M|re.I):
+            line_index = lines.index(line)
 
-                line_index = lines.index(line)
+            for m in re.finditer(re.escape(query_text), line.replace('"', "'"), re.M|re.I):
+
                 text_start = m.start()
                 text_end = m.end()
 
                 second_part = ''
                 dot_index = None
                 line_count = 1
-                search_line = line[text_start:]
+                search_line = line[text_start:].replace('"', "'")
 
                 first_part = ''
                 dot_index_rev = None
                 line_count_rev = -1
-                search_line_rev = line[:text_start]
+                search_line_rev = line[:text_start].replace('"', "'")
 
                 while dot_index == None or dot_index_rev == None:
                     # Forward Scan of QUERY_TEXT sentence until period
                     if dot_index == None:
                         if "." not in search_line:
                             second_part += search_line
-                            search_line = lines[line_index + line_count]
+                            search_line = lines[line_index + line_count].replace('"', "'")
                             line_count += 1
                         else:
                             dot_index = search_line.index(".")
-                            second_part += search_line[:dot_index + 1]
+                            if search_line[dot_index + 1] == "'":
+                                add_quote_index = 2
+                            else:
+                                add_quote_index = 1
+                            second_part += search_line[:dot_index + add_quote_index]
 
                     # Backwards Scan of QUERY_TEXT sentence until period
                     if dot_index_rev == None:
                         if "." not in search_line_rev:
                             first_part = search_line_rev + first_part
-                            search_line_rev = lines[line_index + line_count_rev]
+                            search_line_rev = lines[line_index + line_count_rev].replace('"', "'")
                             line_count_rev -= 1
                         else:
-                            dot_index_rev = search_line_rev.index(".")
+                            dot_index_rev = search_line_rev.rindex(".")
                             first_part = (search_line_rev[dot_index_rev+1:]
                                             + first_part)
+
 
 
                 sentence = (first_part + second_part).replace('\n', ' ').strip()
