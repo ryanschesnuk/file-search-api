@@ -7,7 +7,6 @@ HOST = "127.0.0.1"
 PORT = 8000
 
 app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
 app.register_blueprint(occurrences_api, url_prefix='/api/v1/search')
 
 @app.route('/')

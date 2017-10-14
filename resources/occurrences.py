@@ -1,10 +1,27 @@
 from flask import Blueprint, jsonify
 
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, fields, marshal
+from playhouse.shortcuts import model_to_dict
 
 import re
 
+import models
+
 FILEPATH = 'files/king-i-150.txt'
+
+
+occurrence_fields = {
+    'line': fields.Integer,
+    'start': fields.Integer,
+    'end': fields.Integer,
+    'in_sentence': fields.String
+}
+
+search_fields = {
+    'query_text': fields.String,
+    'number_of_occurrences': fields.Integer,
+    'occurrences': fields.Nested(occurrence_fields)
+}
 
 class OccurrenceList(Resource):
 
@@ -12,7 +29,9 @@ class OccurrenceList(Resource):
         with open(FILEPATH, encoding='utf-8') as new_file:
             lines = new_file.readlines()
 
-        occurrences_list = []
+        new_search_result = models.SearchResult(query_text=query_text)
+
+        occurrence_object_list = []
 
         for line in lines:
             for m in re.finditer(re.escape(query_text), line, re.M|re.I):
@@ -55,22 +74,21 @@ class OccurrenceList(Resource):
 
 
                 sentence = (first_part + second_part).replace('\n', ' ').strip()
-                occurrences_list.append(
-                    {
-                        "line": line_index + 1,
-                        "start": text_start + 1,
-                        "end": text_end + 1,
-                        "in_sentence": sentence
-                    }
+
+                occurrence_object_list.append(
+                    models.Occurrence(
+                        search_result = new_search_result,
+                        line = line_index + 1,
+                        start = text_start + 1,
+                        end = text_end + 1,
+                        in_sentence = sentence
+                    )
                 )
 
-        return jsonify(
-            {
-                "query_text": query_text,
-                "number_of_occurrences": len(occurrences_list),
-                "occurrences": occurrences_list
-            }
-        )
+        setattr(new_search_result, 'occurrences', occurrence_object_list)
+        new_search_result.set_num_of_occurrences()
+        response = marshal(new_search_result, search_fields)
+        return jsonify(response)
 
 occurrences_api = Blueprint('resources.occurrences', __name__)
 api = Api(occurrences_api)
