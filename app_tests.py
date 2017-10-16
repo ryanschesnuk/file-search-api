@@ -1,12 +1,11 @@
 import unittest
 
 import json
+import re
 from peewee import *
 
 import app
 import models
-import re
-
 from settings import FILEPATH
 import resources
 

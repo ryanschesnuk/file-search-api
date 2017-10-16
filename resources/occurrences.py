@@ -6,7 +6,7 @@ import re
 import models
 from settings import FILEPATH
 
-
+#Fields used with marshal
 occurrence_fields = {
     'line': fields.Integer,
     'start': fields.Integer,
@@ -23,6 +23,12 @@ search_fields = {
 class OccurrenceList(Resource):
 
     def get(self, query_text):
+        """Search file for occurrences of 'query_text'
+
+        :param query_text: String of arbitrary text
+        :return: SearchResult JSON object
+        """
+
         with open(FILEPATH, encoding='utf-8') as f:
             lines = f.readlines()
 
@@ -57,7 +63,8 @@ class OccurrenceList(Resource):
                             "?" not in search_line and
                             "!" not in search_line):
                             second_part += search_line
-                            search_line = lines[line_index + line_count].replace('"', "'")
+                            search_line = lines[line_index
+                                        + line_count].replace('"', "'")
                             line_count += 1
                         else:
                             for punc in (".", "!", "?"):
@@ -72,7 +79,8 @@ class OccurrenceList(Resource):
                                     add_quote_index = 1
                             except IndexError:
                                 add_quote_index = 0
-                            second_part += search_line[:boundary_index + add_quote_index]
+                            second_part += search_line[:boundary_index
+                                                        + add_quote_index]
 
                     # Backwards Scan of query_text sentence until period
                     if boundary_index_rev == None:
@@ -80,7 +88,8 @@ class OccurrenceList(Resource):
                             "?" not in search_line_rev and
                             "!" not in search_line_rev):
                             first_part = search_line_rev + first_part
-                            search_line_rev = lines[line_index + line_count_rev].replace('"', "'")
+                            search_line_rev = lines[line_index
+                                            + line_count_rev].replace('"', "'")
                             line_count_rev -= 1
                         else:
                             for punc in (".", "!", "?"):
@@ -103,6 +112,7 @@ class OccurrenceList(Resource):
                     )
                 )
 
+        #Add occurrences to SearchResult
         setattr(new_search_result, 'occurrences', occurrence_object_list)
         new_search_result.set_num_of_occurrences()
         response = marshal(new_search_result, search_fields)
