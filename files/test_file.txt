@@ -1,0 +1,22 @@
+            Sample Text Title
+
+              By Somebody Someone
+
+    This is a sample bit of text used for testing this API. We
+definitely should check that we can find phrases that
+span
+multiple
+lines. Also, we should test sentences that end in
+exclamation points! This sentence is preceded with different
+punctuation.
+
+    There is also the issue of "doube quotes" which could possibly
+interfere with the JSON string. Here is another sentence as an interesting
+addition. We should also ask: what about
+questions? There is another thing we must deal with. That other
+thing is abbreviations, like Mr. Smith.
+
+    Repeat sentences on same line. Repeat sentences on same line. We
+should also check. Short sentences. On the same line to make sure
+that that the correct preceeding period determines the beginning
+of the sentence.

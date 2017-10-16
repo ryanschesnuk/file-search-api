@@ -9,8 +9,7 @@ class SearchResult(Model):
         try:
             self.number_of_occurrences = len(self.occurrences)
         except AttributeError:
-            return None
-
+            pass
 
 
 class Occurrence(Model):
