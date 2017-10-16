@@ -1,13 +1,10 @@
 from flask import Blueprint, jsonify
-
 from flask_restful import Resource, Api, fields, marshal
-from playhouse.shortcuts import model_to_dict
 
 import re
 
 import models
-
-FILEPATH = 'files/king-i-150.txt'
+from settings import FILEPATH
 
 
 occurrence_fields = {
@@ -26,8 +23,8 @@ search_fields = {
 class OccurrenceList(Resource):
 
     def get(self, query_text):
-        with open(FILEPATH, encoding='utf-8') as new_file:
-            lines = new_file.readlines()
+        with open(FILEPATH, encoding='utf-8') as f:
+            lines = f.readlines()
 
         new_search_result = models.SearchResult(query_text=query_text)
 
@@ -36,23 +33,25 @@ class OccurrenceList(Resource):
         for line in lines:
             line_index = lines.index(line)
 
-            for m in re.finditer(re.escape(query_text), line.replace('"', "'"), re.M|re.I):
+            for m in re.finditer(re.escape(query_text), line, re.M|re.I):
 
                 text_start = m.start()
                 text_end = m.end()
 
+                #Initial params for second part of sentence
                 second_part = ''
                 dot_index = None
                 line_count = 1
                 search_line = line[text_start:].replace('"', "'")
 
+                #intial params for first part of sentence
                 first_part = ''
                 dot_index_rev = None
                 line_count_rev = -1
                 search_line_rev = line[:text_start].replace('"', "'")
 
                 while dot_index == None or dot_index_rev == None:
-                    # Forward Scan of QUERY_TEXT sentence until period
+                    # Forward Scan of query_text sentence until period
                     if dot_index == None:
                         if "." not in search_line:
                             second_part += search_line
@@ -66,7 +65,7 @@ class OccurrenceList(Resource):
                                 add_quote_index = 1
                             second_part += search_line[:dot_index + add_quote_index]
 
-                    # Backwards Scan of QUERY_TEXT sentence until period
+                    # Backwards Scan of query_text sentence until period
                     if dot_index_rev == None:
                         if "." not in search_line_rev:
                             first_part = search_line_rev + first_part
@@ -76,8 +75,6 @@ class OccurrenceList(Resource):
                             dot_index_rev = search_line_rev.rindex(".")
                             first_part = (search_line_rev[dot_index_rev+1:]
                                             + first_part)
-
-
 
                 sentence = (first_part + second_part).replace('\n', ' ').strip()
 
