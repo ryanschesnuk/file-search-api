@@ -75,7 +75,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
             "Here is another sentence as an interesting addition."
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
     def test_multi_word_phrase(self):
         """Test a query with multiple words"""
@@ -91,7 +92,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
         "We definitely should check that we can find phrases that span multiple lines."
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
     def test_correct_preceeding_period_boundary(self):
         """
@@ -127,7 +129,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
             "This sentence is preceded with different punctuation."
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
     def test_exclamation_point_end_boundary(self):
         """
@@ -146,7 +149,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
             "Also, we should test sentences that end in exclamation points!"
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
 
 
@@ -167,7 +171,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
             "There is another thing we must deal with."
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
     def test_question_mark_end_boundary(self):
         """
@@ -186,7 +191,8 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
         self.assertEqual(data["occurrences"][0]["in_sentence"],
             "We should also ask: what about questions?"
         )
-        self.assertIn(query_string, data["occurrences"][0]["in_sentence"])
+        self.assertRegex(data["occurrences"][0]["in_sentence"],
+                                re.escape(query_string) + r"(?i)")
 
     def test_quote_conversion(self):
         """Check that all double quotes in text are converted to singles"""
