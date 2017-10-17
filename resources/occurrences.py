@@ -57,14 +57,25 @@ class OccurrenceList(Resource):
                 search_line_rev = line[:text_start].replace('"', "'")
 
                 while boundary_index == None or boundary_index_rev == None:
-                    # Forward Scan of query_text sentence until period
+                    # Forward Scan of query_text sentence until punctuation or \n
                     if boundary_index == None:
                         if ("." not in search_line and
                             "?" not in search_line and
                             "!" not in search_line):
+
                             second_part += search_line
-                            search_line = lines[line_index
-                                        + line_count].replace('"', "'")
+                            try:
+                                search_line = lines[line_index
+                                            + line_count].replace('"', "'")
+                            except IndexError:
+                                boundary_index = search_line.index(
+                                                                search_line[-1]
+                                                                )
+                            else:
+                                if search_line == "\n":
+                                    boundary_index = lines[line_index +
+                                                    line_count -1].index("\n")
+
                             line_count += 1
                         else:
                             for punc in (".", "!", "?"):
@@ -73,6 +84,7 @@ class OccurrenceList(Resource):
                                 except ValueError:
                                     continue
                             try:
+                                #If last word is in quotes, grab quote after period
                                 if search_line[boundary_index + 1] == "'":
                                     add_quote_index = 2
                                 else:
@@ -82,19 +94,29 @@ class OccurrenceList(Resource):
                             second_part += search_line[:boundary_index
                                                         + add_quote_index]
 
-                    # Backwards Scan of query_text sentence until period
+                    # Backwards Scan of query_text sentence until punctuation or \n
                     if boundary_index_rev == None:
                         if ("." not in search_line_rev and
                             "?" not in search_line_rev and
                             "!" not in search_line_rev):
                             first_part = search_line_rev + first_part
-                            search_line_rev = lines[line_index
+
+                            if search_line_rev == "\n":
+                                boundary_index_rev = search_line_rev.index("\n")
+
+                            elif line_index + line_count_rev >= 0:
+                                search_line_rev = lines[line_index
                                             + line_count_rev].replace('"', "'")
-                            line_count_rev -= 1
+                                line_count_rev -= 1
+                            else:
+                                boundary_index_rev = search_line_rev.index(
+                                                            search_line_rev[0]
+                                                            )
                         else:
                             for punc in (".", "!", "?"):
                                 try:
-                                    boundary_index_rev = search_line_rev.rindex(punc)
+                                    boundary_index_rev = search_line_rev.rindex(
+                                                                            punc)
                                 except ValueError:
                                     continue
                             first_part = (search_line_rev[boundary_index_rev+1:]
