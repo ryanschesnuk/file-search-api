@@ -247,6 +247,21 @@ class OccurrenceListResourceTestCase(unittest.TestCase):
             "This sentence ends with a newline"
         )
 
+    def test_newline_both_boundaries(self):
+        """
+        Make sure in_sentence attribute is correctly constructed when
+        encountering a newline at both ends of a sentence.
+        """
+
+        query_string = "Text Title"
+        res = self.app.get("api/v1/search/{}".format(query_string))
+        data = res.data.decode('utf-8')
+        data = json.loads(data)
+
+        self.assertEqual(data["occurrences"][0]["in_sentence"],
+            "This is Text Title"
+        )
+
     def test_repeat_matches_on_single_line(self):
         """Check that seperate repeat matches are detected on a single line"""
 
